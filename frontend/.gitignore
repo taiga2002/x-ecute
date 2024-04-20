@@ -7,3 +7,4 @@ public/workbox*
 out/
 node_modules
 .env
+yarn.lock
