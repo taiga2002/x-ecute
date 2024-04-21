@@ -1,4 +1,34 @@
 import re
+from datetime import date
+from lib import authenticate, TweetInfo, ReaderInfo
+
+tweet = None
+reader = None
+
+reserved = {
+    "date": {
+        "now": date.today
+    },
+    "reader": {
+        "location": reader.location,
+        "verified": reader.verified,
+        "friends_count": reader.friends_count,
+        "followers_count": reader.followers_count
+    },
+    "tweet": {
+        "likes": tweet.tweet_likes,
+        "retweets": tweet.tweet_retweets
+    }
+}
+
+def start(user_id):
+    bearer_token = 'AAAAAAAAAAAAAAAAAAAAABmdtQEAAAAAzf5cxQJxz4tyAVx84vUCqL1v3Eo%3DMLmVpec8eUw6o67mABkfIjNCCR1GKUDL2BqZgctt0ymmxt0mfC'
+    client = authenticate(bearer_token)
+
+    # Create instances of TweetInfo and ReaderInfo
+    tweet_info = TweetInfo(client, "1781866717238456650")
+    reader_info = ReaderInfo(client, user_id)
+    return tweet_info, reader_info
 
 def splitter(text, num):
     # Split on '\n' only when not followed by ' '
@@ -79,6 +109,10 @@ def evaluate(text):
     return False
 
 def reduce(text):
+    if ' ' not in text and '.' in text:
+        special = text.split('.')
+        func = reserved[special[0]][special[1]]
+        return func()
     if text[0] == '\"':
         return text[1:len(text) - 2]
     if text == "True":
@@ -131,6 +165,7 @@ def flatten_list(lst):
     return flat_list
 
 if __name__ == "__main__":
+    tweet, reader = start("elonmusk")
     split = splitter("if 5 + 3 == 12 - 4 and 4 == 14 % 5 or 5 == 3\n  fn()\n  if 3 * 6 == 54 // 3 and \"abc\" <= \"abd\"\n    fn2()\n    if False == True\n      fn4()\n    elif True == True and 4 == 4\n      fn5()\n    else\n      fn6()\nelif 4 == 4\n  fn3()", 2)
     split = flatten_list(split)
     print(split)
