@@ -138,9 +138,9 @@ def reduce(text, reserved):
         return func
     if text[0] == '"':
         return text[1:len(text) - 1]
-    if text == "True":
+    if text == "true":
         return True
-    if text == "False":
+    if text == "false":
         return False
     output = ""
     tok = text.split(' ')
