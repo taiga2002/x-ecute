@@ -8,11 +8,12 @@ from datetime import date
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-# Authentication credentials for Twitter API v2
-bearer_token = "AAAAAAAAAAAAAAAAAAAAABmdtQEAAAAAzf5cxQJxz4tyAVx84vUCqL1v3Eo%3DMLmVpec8eUw6o67mABkfIjNCCR1GKUDL2BqZgctt0ymmxt0mfC"
 app = Flask(__name__)
 CORS(app)
-# Instantiate the Client with bearer token authentication
+
+# Authentication credentials for Twitter API v2
+bearer_token = "AAAAAAAAAAAAAAAAAAAAABmdtQEAAAAAzf5cxQJxz4tyAVx84vUCqL1v3Eo%3DMLmVpec8eUw6o67mABkfIjNCCR1GKUDL2BqZgctt0ymmxt0mfC"
+client = tweepy.Client(bearer_token)
 
 client_user = tweepy.Client(
     consumer_key="KNpW9bkrWWCiUS62w1SJrerOb",
@@ -20,7 +21,6 @@ client_user = tweepy.Client(
     access_token="3058762748-r3NY8ktxccNRrRlrJghhvnIibCMpgN6hN0g3GK2",
     access_token_secret="jyfUDwFpaR31YoXph3TYQz9W00xFTglHWb97034T71gF5"
 )
-client = tweepy.Client(bearer_token)
 
 # Reader info
 
