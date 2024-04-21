@@ -57,8 +57,10 @@ export default function Tweets(props){
                     </div>
                     <div className="ml-1">
                         <p className="items-center text-white overflow-hidden">
-                            {info.bodyText}
-                            <img className="mt-3 rounded-xl" src={info.image}/>
+                            {info.bodyText && (
+                                <span dangerouslySetInnerHTML={{ __html: info.bodyText.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;') }} />
+                            )}
+                            {info.image && <img className="mt-3 rounded-xl" src={info.image} alt="Info Image" />}
                         </p>
                         <ul className="flex justify-between mt-2">
                             <li className="flex items-center space-x-3 text-primary-gray_colors text-sm group">

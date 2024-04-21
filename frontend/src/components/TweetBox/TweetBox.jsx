@@ -5,20 +5,7 @@ import { Media, Gif, Survey, Emoji, Plans } from '../Sidebar/İcons';
 export default function TweetBox() {
     const [content, setContent] = useState("");
     const currTime = new Date().toLocaleTimeString();
-    const sendTweet = () => {
-      if (content !== "") {
-        db.collection("feed").add({
-          displayName: "AdemCan Certel",
-          username: "@CertelAdemCan",
-          content,
-          timestamp: currTime,
-          avatar:
-            "https://pbs.twimg.com/profile_images/1373343596150132738/j8K08iHu_400x400.jpg",
-        });
-  
-        setContent("");
-      }
-    };
+    const sendTweet = () => { };
     return(
         <>
         <div className="flex flex-1 flex-col mt-2 text-white">

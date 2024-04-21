@@ -28,7 +28,7 @@ export default function SideBar() {
 
             <div className="flex flex-col w-275 justify-between px-3 bg-black">
                 <div>
-                    <div className="flex items-center justify-center w-12 h-12 rounded-full transform transition-colors duration-2 hover:bg-primary-twıtter_ıcon hover:bg-opacity-70 mt-1 mb-5 cursor-pointer">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full transform transition-colors duration-2 hover:bg-primary-twıtter_ıcon hover:bg-opacity-70 mt-1 cursor-pointer">
                         <TwitterIcon />
                     </div>
                     <nav className="mb-5">

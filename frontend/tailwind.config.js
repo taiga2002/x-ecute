@@ -31,7 +31,7 @@ module.exports = {
           tweetbox_colors: "#00ba7c",
           tweetbox_colors_hover: "#007B52",
           gray_colors: "#62696F",
-          tweets_hover_colors1: "#1d9bf01a",
+          tweets_hover_colors1: "#1d9bf0",
           tweets_hover_colors2: "#00ba7c",
           tweets_hover_colors3: "#f91880"
         },
