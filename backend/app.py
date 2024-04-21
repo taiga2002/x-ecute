@@ -191,6 +191,7 @@ def dateHelper():
     return str(date.today())
 
 def lex(code_segment, public_metrics):
+    code_segment = code_segment.lower()
     reserved = {
         "date_time": {
             "now": dateHelper()
