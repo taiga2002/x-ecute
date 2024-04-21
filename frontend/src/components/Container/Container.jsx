@@ -11,7 +11,7 @@ export default function ContainerPage() {
     const [userData, setUserData] = useState({});
 
     useEffect(() => {
-        fetch('http://127.0.0.1:5000/tweets?user_id=ordinaryjeremy')
+        fetch('http://127.0.0.1:5000/tweets?user_id=TestAcct63668')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');

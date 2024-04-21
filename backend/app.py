@@ -241,7 +241,7 @@ def gen(lst):
 CODE FOR BACKEND APP
 """
 
-def get_tweets(user_id):
+async def get_tweets(user_id):
     # Get tweets from Twitter API v2
     tweets = client.search_recent_tweets(query=f"from:{user_id}", max_results=10)
     
@@ -275,7 +275,10 @@ def get_tweets(user_id):
         code_gen = gen(lexical_analysis)
         print(code_gen)
 
-        #tweet_text = reword_text(code_gen["reword"], tweet_text) if code_gen["reword"] != "" else tweet_text
+        # Assuming you are within an async function
+        if code_gen["reword"] != "":
+            tweet_text = await generate_new_content(code_gen["reword"], tweet_text)
+
 
         formatted_tweet = {
             "bodyText": tweet_text,
@@ -316,20 +319,22 @@ def get_tweets_count(user_id, keyword, duration_days):
 
 
 # Set Env as export XAI_API_KEY=Eh97MbeIZ4p4UjhF4D8JVyTRAZm7oErMkdePDVi1jWzNYWPq47XPUFWgqcBd0Ysa7bfaAwrHZCVxK+pzGSVBaXUvHmKzZ8F34vsqwtDpI3hKBCf3rhIz/Obwir0obKZ9PQ
-def reword_text(user_prompt, text_content):
-    client = xai_sdk.Client()
-    conversation = client.grok.create_conversation()
+async def generate_new_content(prompt, existing_content):
+    print("PROMPT:" + prompt)
+    print("existing_content:" + existing_content)
 
-    # Add the user prompt and the text content to the conversation
-    response_coroutine = conversation.add_response(f"{user_prompt}\n\n{text_content}")
-    response_token_stream, _ = response_coroutine
+    # Initialize the XAI SDK client with your API credentials
+    client = xai_sdk.Client(api_key='Eh97MbeIZ4p4UjhF4D8JVyTRAZm7oErMkdePDVi1jWzNYWPq47XPUFWgqcBd0Ysa7bfaAwrHZCVxK+pzGSVBaXUvHmKzZ8F34vsqwtDpI3hKBCf3rhIz/Obwir0obKZ9PQ')
 
-    # Iterate over the token stream to get the complete response
-    response_text = ""
-    for token in response_token_stream:
-        response_text += token
+    generated_content = ""
+    async for token in client.sampler.sample(f"This is a conversation between a human user and a highly intelligent creative writer. The human will give an existing sentence and directions on how they want the sentence to be reworded. The creative writer will just reword sentences adhering to the instructions given by the human in the same number of words as the sentence given by the human and only respond with the reworded sentence, nothing else. Do not give any context or follow-ups. The conversation begins. Human: Can you reword this message: {existing_content} with the following directions: {prompt}<|separator|> Assistant:", max_len=30):
+        generated_content += token.token_str
 
-    print(response_text)
+    print("GENERATED CONTENT: " + generated_content)
+    generated_content = generated_content.split("<|separator|>")[0].replace('"', '')
+
+
+    return generated_content
 
 # # Example usage:
 # user_id = "TaigaKitao2002"
@@ -347,12 +352,12 @@ def reword_text(user_prompt, text_content):
 # asyncio.run(reword_text(user_prompt, text_content))
 
 @app.route('/tweets', methods=['GET'])
-def get_user_tweets():
+async def get_user_tweets():
     global user_info
     user_info = get_user_info()
     user_id = request.args.get('user_id')
     if user_id:
-        tweets = get_tweets(user_id)
+        tweets = await get_tweets(user_id)
         print(tweets)
         return jsonify(tweets)
     else:
