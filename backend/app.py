@@ -2,6 +2,9 @@ import tweepy
 from datetime import datetime, timedelta
 import xai_sdk
 import asyncio
+
+import re
+from datetime import date
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -17,8 +20,226 @@ client_user = tweepy.Client(
     access_token="3058762748-r3NY8ktxccNRrRlrJghhvnIibCMpgN6hN0g3GK2",
     access_token_secret="jyfUDwFpaR31YoXph3TYQz9W00xFTglHWb97034T71gF5"
 )
-
 client = tweepy.Client(bearer_token)
+
+# Reader info
+
+def get_user_info():
+    # Fetch the authenticated user's username, name, and profile image URL in one go
+    user_response = client_user.get_me(user_fields=['username', 'name', 'profile_image_url', 'public_metrics', 'verified', 'location'])
+    if user_response.data:
+        print("Name:", user_response.data.name)
+        print("Username:", user_response.data.username)
+        print("Profile Page URL:", user_response.data.profile_image_url)  # This is the user's profile image URL, not the page URL
+        user_info = {
+            "username": user_response.data.username,
+            "displayName": user_response.data.name,
+            "profilePicture": user_response.data.profile_image_url,
+            "location": user_response.data.location,
+            "verified": user_response.data.verified,
+            "public_metrics": user_response.data.public_metrics
+        }
+        return user_info
+    else:
+        print("No data found for the authenticated user.")
+        return None
+
+user_info = get_user_info()
+
+"""
+CODE FOR LEXER
+"""
+
+def splitter(text, num, reserved):
+    # Split on '\n' only when not followed by ' '
+    parts = re.split(r'\n(?!\s)', text)
+    for i in range(len(parts)):
+        if i > 0 and len(parts[i]) > 4 and ("else" == parts[i][0:4] or "elif" == parts[i][0:4]) and parts[i-1]:
+            parts[i] = []
+            continue
+        adder = []
+        # print([parts[i]])
+        while '\n' in parts[i]:
+            parts[i] = extracter(parts[i], str(num), reserved)
+            if len(parts[i]) > 1:
+                for j in range(len(parts[i])):
+                    if j > 0 and len(parts[i][j]) > 4 and ("else" == parts[i][j][0:4] or "elif" == parts[i][j][0:4]) and adder[j-1]:
+                        adder.insert(0, [])
+                        continue
+                    adder = adder + splitter(parts[i][j], num + 2, reserved)
+        if adder:
+            parts[i] = adder
+            parts[i] = flatten_list(parts[i])
+    # print(parts)
+    return parts
+
+def extracter(text, num, reserved):
+    inner = re.split(r'\n(?=\s{'+ num + '}[^ ])', text)
+    # print(inner)
+    cont = evaluate(inner[0], reserved)
+    if not cont:
+        return []
+    inner = inner[1:]
+    for i in range(len(inner)):
+        inner[i] = inner[i].strip()
+    return inner
+
+def evaluate(text, reserved):
+    # print(text)
+    andSplit = re.split(r'\s+(and|or)\s+', text)
+    
+    result = andSplit
+
+    # print(result)
+    output = False
+    if len(result) > 1:
+        for i in range(len(result)):
+            if result[i] == 'and':
+                return evaluate(result[i-1], reserved) and evaluate(result[i+1], reserved)
+            if result[i] == 'or':
+                if evaluate(result[i-1], reserved) or evaluate(result[i+1], reserved):
+                    return True
+            
+    tok = re.split(r'\s+(==|>|>=|<|<=)\s+', text)
+    if len(tok) == 1:
+        return True
+    left = tok[0]
+    if "elif" in left:
+        left = left[5:]
+    if "if" in left:
+        left = left[3:]
+    left = reduce(left, reserved)
+    right = tok[2]
+    right = reduce(right, reserved)
+    if tok[1] == "==":
+        if left == right:
+            return True
+    if tok[1] == ">":
+        if left > right:
+            return True
+    if tok[1] == ">=":
+        if left >= right:
+            return True
+    if tok[1] == "<":
+        if left < right:
+            return True
+    if tok[1] == "<=":
+        if left <= right:
+            return True
+    if tok[1] == "!=":
+        if left != right:
+            return True
+    return False
+
+def reduce(text, reserved):
+    if ' ' not in text and '.' in text:
+        special = text.split('.')
+        func = reserved[special[0]][special[1]]
+        return func
+    if text[0] == '"':
+        return text[1:len(text) - 1]
+    if text == "True":
+        return True
+    if text == "False":
+        return False
+    output = ""
+    tok = text.split(' ')
+    for token in range(len(tok)):
+        if tok[token] == '+':
+            if output:
+                output = str(int(output) + int(reduce(tok[token + 1], reserved)))
+            else:
+                output = str(int(reduce(tok[token - 1], reserved)) + int(reduce(tok[token + 1], reserved)))
+        elif tok[token] == '-':
+            if output:
+                output = str(int(output) - int(reduce(tok[token + 1], reserved)))
+            else:
+                output = str(int(reduce(tok[token - 1], reserved)) - int(reduce(tok[token + 1], reserved)))
+        elif tok[token] == '*':
+            if output:
+                output = str(int(output) * int(reduce(tok[token + 1], reserved)))
+            else:
+                output = str(int(int(reduce(tok[token - 1], reserved))) * int(reduce(tok[token + 1], reserved)))
+        elif tok[token] == '//':
+            if output:
+                output = str(int(output) // int(reduce(tok[token + 1], reserved)))
+            else:
+                output = str(int(int(reduce(tok[token - 1], reserved))) // int(reduce(tok[token + 1], reserved)))
+        elif tok[token] == '%':
+            if output:
+                output = str(int(output) % int(reduce(tok[token + 1], reserved)))
+            else:
+                output = str(int(int(reduce(tok[token - 1], reserved))) % int(reduce(tok[token + 1], reserved)))
+    if not output:
+        try:
+            x = int(text)
+            return x
+        except:
+            return text
+    return int(output)
+
+def flatten_list(lst):
+    flat_list = []
+    for item in lst:
+        if isinstance(item, list):
+            flat_list.extend(flatten_list(item))
+        else:
+            flat_list.append(item)
+    return flat_list
+
+def dateHelper():
+    return str(date.today())
+
+def lex(code_segment, public_metrics):
+    reserved = {
+        "date_time": {
+            "now": dateHelper()
+        },
+        "reader": {
+            "location": user_info['location'],
+            "verified": user_info['verified'],
+            "friends_count": user_info['public_metrics']['following_count'],
+            "followers_count": user_info['public_metrics']['followers_count']
+        },
+        "tweet": {
+            "likes": public_metrics['like_count'],
+            "retweets": public_metrics['retweet_count'],
+            "views": public_metrics['impression_count'],
+            "bookmarks": public_metrics['bookmark_count']
+        }
+    }
+    split = splitter(code_segment, 2, reserved)
+    split = flatten_list(split)
+    print(split)
+    return split
+
+"""
+CODE FOR CODE_GEN
+"""
+
+def gen(lst):
+    animations = {
+        "rocket": 0,
+        "heart": 1
+    }
+    output = {
+        "reword": "",
+        "display": True,
+        "animation": -1
+    }
+    for func in lst:
+        split = func.split('.')
+        if split[0] == "reword" and output["reword"] == "":
+            output["reword"] = split[1]
+        if split[0] == "animate" and output["animation"] == -1:
+            output["animation"] = animations[split[1]]
+        if split[0] == "display":
+            output["display"] = False
+    return output
+
+"""
+CODE FOR BACKEND APP
+"""
 
 def get_tweets(user_id):
     # Get tweets from Twitter API v2
@@ -26,12 +247,11 @@ def get_tweets(user_id):
     
     # Format tweets into the desired format
     formatted_tweets = []
-    counter = 0
     for tweet in tweets.data:
         response = client.get_tweet(tweet.id, 
-                             tweet_fields=['public_metrics'], 
-                             expansions=['author_id'], 
-                             user_fields=['username', 'name', 'profile_image_url', 'verified'])
+                            tweet_fields=['public_metrics'], 
+                            expansions=['author_id'], 
+                            user_fields=['username', 'name', 'profile_image_url', 'verified'])
         print(response)
 
         public_metrics = response.data.public_metrics
@@ -43,10 +263,22 @@ def get_tweets(user_id):
         else:
             print("No user or tweet data available.")
             return []
-  
+        
+        tweet_text = tweet.text
+        code_text = ""
+        if len(parsed := tweet_text.split(",.,\n")) > 1:
+            tweet_text = parsed[0]
+            code_text = parsed[1]
+
+        lexical_analysis = lex(code_text, public_metrics)
+        print(lexical_analysis)
+        code_gen = gen(lexical_analysis)
+        print(code_gen)
+
+        #tweet_text = reword_text(code_gen["reword"], tweet_text) if code_gen["reword"] != "" else tweet_text
+
         formatted_tweet = {
-            "bodyText": tweet.text,
-            "javascript": "",
+            "bodyText": tweet_text,
             "display": True,
             "likeCount": public_metrics['like_count'],
             "retweetCount": public_metrics['retweet_count'],
@@ -56,12 +288,11 @@ def get_tweets(user_id):
             "displayName": author.name,
             "profilePicture": author.profile_image_url,
             "verified": author.verified,
-            "rocket_launch": counter==5,
-            "valentine": counter==2,
-            "display": True
+            "rocket_launch": code_gen['animation']==0,
+            "valentine": code_gen['animation']==1,
+            "display": code_gen['display']
         }
         formatted_tweets.append(formatted_tweet)
-        counter += 1
     print(formatted_tweets)
     return formatted_tweets
 
@@ -83,26 +314,9 @@ def get_tweets_count(user_id, keyword, duration_days):
     # Return the number of tweets
     return len(tweets.data)
 
-def get_user_info():
-    # Fetch the authenticated user's username, name, and profile image URL in one go
-    user_response = client_user.get_me(user_fields=['username', 'name', 'profile_image_url'])
-    if user_response.data:
-        print("Name:", user_response.data.name)
-        print("Username:", user_response.data.username)
-        print("Profile Page URL:", user_response.data.profile_image_url)  # This is the user's profile image URL, not the page URL
-        user_info = {
-            "username": user_response.data.username,
-            "displayName": user_response.data.name,
-            "profilePicture": user_response.data.profile_image_url
-        }
-        return user_info
-    else:
-        print("No data found for the authenticated user.")
-        return None
-
 
 # Set Env as export XAI_API_KEY=Eh97MbeIZ4p4UjhF4D8JVyTRAZm7oErMkdePDVi1jWzNYWPq47XPUFWgqcBd0Ysa7bfaAwrHZCVxK+pzGSVBaXUvHmKzZ8F34vsqwtDpI3hKBCf3rhIz/Obwir0obKZ9PQ
-async def reword_text(user_prompt, text_content):
+def reword_text(user_prompt, text_content):
     client = xai_sdk.Client()
     conversation = client.grok.create_conversation()
 
@@ -112,7 +326,7 @@ async def reword_text(user_prompt, text_content):
 
     # Iterate over the token stream to get the complete response
     response_text = ""
-    async for token in response_token_stream:
+    for token in response_token_stream:
         response_text += token
 
     print(response_text)
@@ -134,6 +348,8 @@ async def reword_text(user_prompt, text_content):
 
 @app.route('/tweets', methods=['GET'])
 def get_user_tweets():
+    global user_info
+    user_info = get_user_info()
     user_id = request.args.get('user_id')
     if user_id:
         tweets = get_tweets(user_id)
@@ -144,6 +360,7 @@ def get_user_tweets():
     
 @app.route('/user', methods=['GET'])
 def get_user():
+    global user_info
     user_info = get_user_info()
     print(user_info)
     return jsonify(user_info)
