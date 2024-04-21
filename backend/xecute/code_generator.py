@@ -1,4 +1,4 @@
-def main(lst):
+def gen(lst):
     animations = {
         "rocket": 0,
         "heart": 1
