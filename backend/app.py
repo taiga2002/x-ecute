@@ -139,9 +139,9 @@ def reduce(text, reserved):
         return func
     if text[0] == '"':
         return text[1:len(text) - 1]
-    if text == "true":
+    if text == "True":
         return True
-    if text == "false":
+    if text == "False":
         return False
     output = ""
     tok = text.split(' ')
@@ -192,7 +192,6 @@ def dateHelper():
     return str(date.today())
 
 def lex(code_segment, public_metrics):
-    code_segment = code_segment.lower()
     reserved = {
         "date_time": {
             "now": dateHelper()
@@ -243,7 +242,7 @@ def gen(lst):
 CODE FOR BACKEND APP
 """
 
-async def get_tweets(user_id):
+def get_tweets(user_id):
     # Get tweets from Twitter API v2
     tweets = client.search_recent_tweets(query=f"from:{user_id}", max_results=10)
     
@@ -277,10 +276,7 @@ async def get_tweets(user_id):
         code_gen = gen(lexical_analysis)
         print(code_gen)
 
-        # Assuming you are within an async function
-        if code_gen["reword"] != "":
-            tweet_text = await generate_new_content(code_gen["reword"], tweet_text)
-
+        #tweet_text = reword_text(code_gen["reword"], tweet_text) if code_gen["reword"] != "" else tweet_text
 
         formatted_tweet = {
             "bodyText": tweet_text,
@@ -321,22 +317,20 @@ def get_tweets_count(user_id, keyword, duration_days):
 
 
 # Set Env as export XAI_API_KEY=Eh97MbeIZ4p4UjhF4D8JVyTRAZm7oErMkdePDVi1jWzNYWPq47XPUFWgqcBd0Ysa7bfaAwrHZCVxK+pzGSVBaXUvHmKzZ8F34vsqwtDpI3hKBCf3rhIz/Obwir0obKZ9PQ
-async def generate_new_content(prompt, existing_content):
-    print("PROMPT:" + prompt)
-    print("existing_content:" + existing_content)
+def reword_text(user_prompt, text_content):
+    client = xai_sdk.Client()
+    conversation = client.grok.create_conversation()
 
-    # Initialize the XAI SDK client with your API credentials
-    client = xai_sdk.Client(api_key='Eh97MbeIZ4p4UjhF4D8JVyTRAZm7oErMkdePDVi1jWzNYWPq47XPUFWgqcBd0Ysa7bfaAwrHZCVxK+pzGSVBaXUvHmKzZ8F34vsqwtDpI3hKBCf3rhIz/Obwir0obKZ9PQ')
+    # Add the user prompt and the text content to the conversation
+    response_coroutine = conversation.add_response(f"{user_prompt}\n\n{text_content}")
+    response_token_stream, _ = response_coroutine
 
-    generated_content = ""
-    async for token in client.sampler.sample(f"This is a conversation between a human user and a highly intelligent creative writer. The human will give an existing sentence and directions on how they want the sentence to be reworded. The creative writer will just reword sentences adhering to the instructions given by the human in the same number of words as the sentence given by the human and only respond with the reworded sentence, nothing else. Do not give any context or follow-ups. The conversation begins. Human: Can you reword this message: {existing_content} with the following directions: {prompt}<|separator|> Assistant:", max_len=30):
-        generated_content += token.token_str
+    # Iterate over the token stream to get the complete response
+    response_text = ""
+    for token in response_token_stream:
+        response_text += token
 
-    print("GENERATED CONTENT: " + generated_content)
-    generated_content = generated_content.split("<|separator|>")[0].replace('"', '')
-
-
-    return generated_content
+    print(response_text)
 
 # # Example usage:
 # user_id = "TaigaKitao2002"
@@ -354,12 +348,12 @@ async def generate_new_content(prompt, existing_content):
 # asyncio.run(reword_text(user_prompt, text_content))
 
 @app.route('/tweets', methods=['GET'])
-async def get_user_tweets():
+def get_user_tweets():
     global user_info
     user_info = get_user_info()
     user_id = request.args.get('user_id')
     if user_id:
-        tweets = await get_tweets(user_id)
+        tweets = get_tweets(user_id)
         print(tweets)
         return jsonify(tweets)
     else:
