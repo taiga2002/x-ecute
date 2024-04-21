@@ -16,10 +16,10 @@ bearer_token = "AAAAAAAAAAAAAAAAAAAAABmdtQEAAAAAzf5cxQJxz4tyAVx84vUCqL1v3Eo%3DML
 client = tweepy.Client(bearer_token)
 
 client_user = tweepy.Client(
-    consumer_key="KNpW9bkrWWCiUS62w1SJrerOb",
-    consumer_secret="P0cew3ZDqPLDIHEds3kWi0G9ZPbznqA8DAlaz5YutzdKYun8mJ",
-    access_token="3058762748-r3NY8ktxccNRrRlrJghhvnIibCMpgN6hN0g3GK2",
-    access_token_secret="jyfUDwFpaR31YoXph3TYQz9W00xFTglHWb97034T71gF5"
+    consumer_key="BoCHitvCkV87RESI4zUdXd8rH",
+    consumer_secret="qA2huEattWw5jN3q38gHeYEbhtXDWFSxzGLzhgcFoXeau4dmX8",
+    access_token="2686492698-HvkV6wwEta0Lb2HarYuWJCJ25vBq9VKzLAaNjGE",
+    access_token_secret="ZZKTf15cCK9XQ9VWNeuSCmfg9X5IeuvhTCdW1lSDRKCsZ"
 )
 
 # Reader info
@@ -201,9 +201,9 @@ def lex(code_segment, public_metrics):
             "friends_count": user_info['public_metrics']['following_count'],
             "followers_count": user_info['public_metrics']['followers_count']
         },
-        "tweet": {
+        "post": {
             "likes": public_metrics['like_count'],
-            "retweets": public_metrics['retweet_count'],
+            "reposts": public_metrics['retweet_count'],
             "views": public_metrics['impression_count'],
             "bookmarks": public_metrics['bookmark_count']
         }
