@@ -3,10 +3,21 @@ from datetime import datetime, timedelta
 import xai_sdk
 import asyncio
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+
 # Authentication credentials for Twitter API v2
 bearer_token = "AAAAAAAAAAAAAAAAAAAAABmdtQEAAAAAzf5cxQJxz4tyAVx84vUCqL1v3Eo%3DMLmVpec8eUw6o67mABkfIjNCCR1GKUDL2BqZgctt0ymmxt0mfC"
 app = Flask(__name__)
+CORS(app)
 # Instantiate the Client with bearer token authentication
+
+client_user = tweepy.Client(
+    consumer_key="KNpW9bkrWWCiUS62w1SJrerOb",
+    consumer_secret="P0cew3ZDqPLDIHEds3kWi0G9ZPbznqA8DAlaz5YutzdKYun8mJ",
+    access_token="3058762748-r3NY8ktxccNRrRlrJghhvnIibCMpgN6hN0g3GK2",
+    access_token_secret="jyfUDwFpaR31YoXph3TYQz9W00xFTglHWb97034T71gF5"
+)
+
 client = tweepy.Client(bearer_token)
 
 def get_tweets(user_id):
@@ -15,27 +26,24 @@ def get_tweets(user_id):
     
     # Format tweets into the desired format
     formatted_tweets = []
+    counter = 0
     for tweet in tweets.data:
         response = client.get_tweet(tweet.id, 
                              tweet_fields=['public_metrics'], 
                              expansions=['author_id'], 
                              user_fields=['username', 'name', 'profile_image_url', 'verified'])
-        
+        print(response)
+
         public_metrics = response.data.public_metrics
-        users = {user.id: user for user in response.includes['users']}
-        
+
         # Map users by their IDs
-        if response.includes['users'] and response.data:
-            first_user = response.includes['users'][0]
-            first_tweet = response.data
+        if response.includes and 'users' in response.includes and response.data:
+            author = response.includes['users'][0]
+            print(author)
         else:
             print("No user or tweet data available.")
             return []
-        # print(users)
-        # author = users[tweet.author_id]
-        # likes = response.data.public_metrics['like_count']
-        # print(response.data.public_metrics)
-        # print(f'The tweet has {likes} likes.')
+  
         formatted_tweet = {
             "bodyText": tweet.text,
             "javascript": "",
@@ -44,14 +52,16 @@ def get_tweets(user_id):
             "retweetCount": public_metrics['retweet_count'],
             "replyCount": public_metrics['reply_count'],
             "shareCount": 0,
-            "username": first_user.username,
-            "displayName": first_user.name,
-            "profilePicture": "fake_URL",
-            "verified": False,
-            "animation": "",
+            "username": author.username,
+            "displayName": author.name,
+            "profilePicture": author.profile_image_url,
+            "verified": author.verified,
+            "rocket_launch": counter==5,
+            "valentine": counter==2,
             "display": True
         }
         formatted_tweets.append(formatted_tweet)
+        counter += 1
     print(formatted_tweets)
     return formatted_tweets
 
@@ -72,6 +82,24 @@ def get_tweets_count(user_id, keyword, duration_days):
 
     # Return the number of tweets
     return len(tweets.data)
+
+def get_user_info():
+    # Fetch the authenticated user's username, name, and profile image URL in one go
+    user_response = client_user.get_me(user_fields=['username', 'name', 'profile_image_url'])
+    if user_response.data:
+        print("Name:", user_response.data.name)
+        print("Username:", user_response.data.username)
+        print("Profile Page URL:", user_response.data.profile_image_url)  # This is the user's profile image URL, not the page URL
+        user_info = {
+            "username": user_response.data.username,
+            "displayName": user_response.data.name,
+            "profilePicture": user_response.data.profile_image_url
+        }
+        return user_info
+    else:
+        print("No data found for the authenticated user.")
+        return None
+
 
 # Set Env as export XAI_API_KEY=Eh97MbeIZ4p4UjhF4D8JVyTRAZm7oErMkdePDVi1jWzNYWPq47XPUFWgqcBd0Ysa7bfaAwrHZCVxK+pzGSVBaXUvHmKzZ8F34vsqwtDpI3hKBCf3rhIz/Obwir0obKZ9PQ
 async def reword_text(user_prompt, text_content):
@@ -109,9 +137,16 @@ def get_user_tweets():
     user_id = request.args.get('user_id')
     if user_id:
         tweets = get_tweets(user_id)
+        print(tweets)
         return jsonify(tweets)
     else:
         return jsonify({"error": "Missing user_id parameter"}), 400
+    
+@app.route('/user', methods=['GET'])
+def get_user():
+    user_info = get_user_info()
+    print(user_info)
+    return jsonify(user_info)
 
 if __name__ == '__main__':
     app.run(debug=True)

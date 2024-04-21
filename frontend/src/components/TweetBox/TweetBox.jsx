@@ -1,17 +1,17 @@
 import { useState , useRef } from 'react'
 import { Media, Gif, Survey, Emoji, Plans } from '../Sidebar/İcons';
-import db from '../../config/modules/firebase'
 
 
 export default function TweetBox() {
     const [content, setContent] = useState("");
+    const currTime = new Date().toLocaleTimeString();
     const sendTweet = () => {
       if (content !== "") {
         db.collection("feed").add({
           displayName: "AdemCan Certel",
           username: "@CertelAdemCan",
           content,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          timestamp: currTime,
           avatar:
             "https://pbs.twimg.com/profile_images/1373343596150132738/j8K08iHu_400x400.jpg",
         });
@@ -28,7 +28,7 @@ export default function TweetBox() {
                     <input data-v-16420b52="" type="file" id="imageInput" accept="image/*" className="file cursor-pointer"/>
                        <div className="flex items-center justify-center w-9 h-9 rounded-full transform transition-colors duration-2 hover:bg-primary-tweetbox_colors_hover hover:bg-opacity-25 cursor-pointer">
                            <a title="Media">
-                               <label for="imageInput">
+                               <label htmlFor="imageInput">
                                <Media/>
                                </label>
                            </a>

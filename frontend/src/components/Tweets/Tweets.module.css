@@ -1,10 +1,5 @@
 .flyaway {
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    animation: rumble 2s 0.5s ease-in-out infinite, flyAway 4s 2s forwards infinite; /* Animation lasts 5 seconds */
+    animation: rumble 2s 0.5s ease-in-out, flyAway 4s 2s forwards; /* Animation lasts 5 seconds */
 }
 
 @keyframes flyAway {
@@ -13,8 +8,8 @@
         opacity: 1;
     }
     99% {
-        transform: translateX(100vw) translateY(100vh); /* Move out of view horizontally and vertically */
-        opacity: 0;
+        transform: translateX(0) translateY(-100vh); /* Move out of view horizontally and vertically */
+        opacity: 1;
     }
     100% {
         transform: translateX(0) translateY(0);
@@ -33,4 +28,29 @@
     70% { transform: translate(-5px, 0); }
     80% { transform: translate(5px, 0); }
     90% { transform: translate(-5px, 0); }
+}
+
+.explode {
+    /* border-radius: 50%; Optional: makes it look like a circle */
+    animation: explode 2s 1s ease-in-out; /* Adjust timing as needed */
+}
+
+
+@keyframes explode {
+    0% {
+        transform: scale(1); /* Start at normal size */
+        opacity: 1;
+    }
+    25% {
+        transform: scale(1); /* Start at normal size */
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.5); /* Scale up by double */
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0); /* Shrink down to nothing */
+        opacity: 0;
+    }
 }

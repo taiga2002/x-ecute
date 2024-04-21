@@ -5,7 +5,7 @@ export default function AllBox() {
         <div className="flex items-center space-x-5 p-3 m-3 rounded-full bg-primary-search_box text-white focus-within:ring-2 focus-within:ring-primary-search_box_color focus:ring-1">
             <Search />
             <div>
-                <input className="bg-primary-searchbox focus:outline-none bg-transparent w-full" type="text" placeholder="Search Twitter"/>
+                <input className="bg-primary-searchbox focus:outline-none bg-transparent w-full" type="text" placeholder="Search"/>
             </div>
         </div>
         <div className="items-center p-3 m-3 mt-4 bg-primary-trends_fy_color rounded-xl">

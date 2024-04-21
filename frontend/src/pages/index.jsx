@@ -1,8 +1,6 @@
-import image from 'next/image';
 import SideBar from '../components/Sidebar/Bar';
 import AllBox from '../components/SearchTT/Box';
 import ContainerPage from '../components/Container/Container';
-import Tweets from '../components/Tweets/Tweets';
 
 export default function HomePage() {
     return(

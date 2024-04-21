@@ -1,7 +1,28 @@
 import React from 'react';
+import { useState , useEffect } from 'react'
 import { TwitterIcon, HomeIcon, ExploreIcon, NotificationsIcon, MessagesIcon, BookMarksIcon, ListIcon, ProfileIcon, MoreIcon } from './İcons';
 
 export default function SideBar() {
+    const [userData, setUserData] = useState({});
+
+    useEffect(() => {
+        fetch('http://127.0.0.1:5000/user')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setUserData(data);
+                console.log(data);
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    }, []);
+
     return (
         <>
 
@@ -67,11 +88,11 @@ export default function SideBar() {
                     </button>
                     <div className="flex justify-between items-center mb-7 mt-6 hover:bg-primary-navi_hover hover:bg-opacity-70 rounded-full pl-3 pr-8 py-3 transform transition-colors duration-2">
                         <div className="h-11 w-11">
-                            <img className="rounded-full" src="https://pbs.twimg.com/profile_images/1439646648410464258/C52zZ4ff_400x400.jpg" />
+                            <img className="rounded-full" src={userData.profilePicture} />
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-bold text-md text-white">AdemCan Certel</span>
-                            <span className="text-primary-profile_color text-sm">@CertelAdemcan</span>
+                            <span className="font-bold text-md text-white">{userData.displayName}</span>
+                            <span className="text-primary-profile_color text-sm">@{userData.username}</span>
                         </div>
 
                         <div className="flex space-x-1">
