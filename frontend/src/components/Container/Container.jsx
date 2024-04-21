@@ -18,6 +18,7 @@ export default function ContainerPage() {
             displayName: "Taiga-san",
             profilePicture: "https://media.licdn.com/dms/image/D4D03AQGdNjaadS0EXQ/profile-displayphoto-shrink_200_200/0/1686292792185?e=2147483647&v=beta&t=t45oUYtA8T9YzN7QtOWxI7yAPzPP443MfqV76PjZv18",
             verified: true,
+            animation: true
         },
         {
             bodyText: "I love Rust!!!",
@@ -31,7 +32,7 @@ export default function ContainerPage() {
             username: "@rohank2003",
             displayName: "Reddy",
             profilePicture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzwIc_FElUS4_wkZF3uUljZ20dDd_xwMwOQZkXR_v8oA&s",
-            verified: false,
+            animation: false,
         },
         
     ]

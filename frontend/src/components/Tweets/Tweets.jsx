@@ -1,12 +1,21 @@
 import { Reply, Retweet, Like, Share, VerifiedBadge } from '../Sidebar/İcons';
 import { useState, useEffect } from 'react';
+import styles from './Tweets.module.css';
 
 export default function Tweets(props){
     const [info, setInfo] = useState({});
-
-    useEffect(() => setInfo(props.info), []);
+    const [style, setStyle] = useState(``);
+    const animations = {
+        "flyaway": `${styles.flyaway}`,
+        "": "",
+    }
+    const componentClass = props.info.animation ? `${styles.flyaway}` : '';
+    useEffect(() => {
+        setInfo(props.info);
+    }, []);
     return(
         <>
+        <div className = {componentClass}>
         <div className="flex space-x-3 px-4 py-3 border-b border-primary-container_border_color">
             <img src={info.profilePicture} className="w-11 h-11 rounded-full" />
             <div className="flex-1">
@@ -54,6 +63,8 @@ export default function Tweets(props){
                 </div>
             </div>
         </div>
+        </div>
+        
         
         </>
     )

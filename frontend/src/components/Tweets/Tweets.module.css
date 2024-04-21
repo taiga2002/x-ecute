@@ -1,0 +1,36 @@
+.flyaway {
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    animation: rumble 2s 0.5s ease-in-out infinite, flyAway 4s 2s forwards infinite; /* Animation lasts 5 seconds */
+}
+
+@keyframes flyAway {
+    0% {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+    }
+    99% {
+        transform: translateX(100vw) translateY(100vh); /* Move out of view horizontally and vertically */
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes rumble {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-5px, 0); }
+    20% { transform: translate(5px, 0); }
+    30% { transform: translate(-5px, 0); }
+    40% { transform: translate(5px, 0); }
+    50% { transform: translate(-5px, 0); }
+    60% { transform: translate(5px, 0); }
+    70% { transform: translate(-5px, 0); }
+    80% { transform: translate(5px, 0); }
+    90% { transform: translate(-5px, 0); }
+}
