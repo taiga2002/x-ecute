@@ -20,30 +20,38 @@ def get_tweets(user_id):
                              tweet_fields=['public_metrics'], 
                              expansions=['author_id'], 
                              user_fields=['username', 'name', 'profile_image_url', 'verified'])
-        print(response)
+        
         public_metrics = response.data.public_metrics
         users = {user.id: user for user in response.includes['users']}
+        
+        # Map users by their IDs
+        if response.includes['users'] and response.data:
+            first_user = response.includes['users'][0]
+            first_tweet = response.data
+        else:
+            print("No user or tweet data available.")
+            return []
         # print(users)
         # author = users[tweet.author_id]
         # likes = response.data.public_metrics['like_count']
         # print(response.data.public_metrics)
         # print(f'The tweet has {likes} likes.')
-        # formatted_tweet = {
-        #     "bodyText": tweet.text,
-        #     "javascript": "",
-        #     "display": True,
-        #     "likeCount": public_metrics['like_count'],
-        #     "retweetCount": public_metrics['retweet_count'],
-        #     "replyCount": public_metrics['reply_count'],
-        #     "shareCount": 0,
-        #     "username": author.username,
-        #     "displayName": author.name,
-        #     "profilePicture": author.profile_image_url,
-        #     "verified": author.verified,
-        #     "animation": "",
-        #     "display": True
-        # }
-        # formatted_tweets.append(formatted_tweet)
+        formatted_tweet = {
+            "bodyText": tweet.text,
+            "javascript": "",
+            "display": True,
+            "likeCount": public_metrics['like_count'],
+            "retweetCount": public_metrics['retweet_count'],
+            "replyCount": public_metrics['reply_count'],
+            "shareCount": 0,
+            "username": first_user.username,
+            "displayName": first_user.name,
+            "profilePicture": "fake_URL",
+            "verified": False,
+            "animation": "",
+            "display": True
+        }
+        formatted_tweets.append(formatted_tweet)
     print(formatted_tweets)
     return formatted_tweets
 
@@ -106,5 +114,5 @@ def get_user_tweets():
         return jsonify({"error": "Missing user_id parameter"}), 400
 
 if __name__ == '__main__':
-    # app.run(debug=True)
-    get_tweets("TaigaKitao2002")
+    app.run(debug=True)
+    # get_tweets("TaigaKitao2002")
