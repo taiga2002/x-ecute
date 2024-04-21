@@ -12,14 +12,15 @@ app = Flask(__name__)
 CORS(app)
 
 # Authentication credentials for Twitter API v2
-bearer_token = "AAAAAAAAAAAAAAAAAAAAABmdtQEAAAAAzf5cxQJxz4tyAVx84vUCqL1v3Eo%3DMLmVpec8eUw6o67mABkfIjNCCR1GKUDL2BqZgctt0ymmxt0mfC"
-client = tweepy.Client(bearer_token)
+bearer_token = "AAAAAAAAAAAAAAAAAAAAAJm9tQEAAAAAsrAhmRg6BVK7eJy68qGXwTTQVk8%3DAcFHngZRPbLkGIc9rkQAi55ahDJSlJRXYA48TXAWWFQfxeI3Ml"
+client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
 
 client_user = tweepy.Client(
-    consumer_key="BoCHitvCkV87RESI4zUdXd8rH",
-    consumer_secret="qA2huEattWw5jN3q38gHeYEbhtXDWFSxzGLzhgcFoXeau4dmX8",
-    access_token="2686492698-HvkV6wwEta0Lb2HarYuWJCJ25vBq9VKzLAaNjGE",
-    access_token_secret="ZZKTf15cCK9XQ9VWNeuSCmfg9X5IeuvhTCdW1lSDRKCsZ"
+    consumer_key="qAfJurHrQv6otGjBogZwXMeYc",
+    consumer_secret="Sy5cB6l333y5VyCsVqZFXu2gGheuJmrqY2k4eqGITsOu6xXMbG",
+    access_token="3058762748-U5UFhlrSdTMhkcZ6KXzvwheCMhE76ZT0k15BlOQ",
+    access_token_secret="pvWT38h6R7ycrmGdbiqhWl1Wt5iUabp06ysrzlPRIiWaF",
+    wait_on_rate_limit=True
 )
 
 # Reader info

@@ -56,7 +56,7 @@ export default function Tweets(props){
                             <span className="text-primary-gray_colors">{info.timeAgo}</span>
                             </div>
                             <div className="ml-1">
-                                <p className="items-center text-white overflow-hidden">
+                                <p className="items-center text-white overflow-auto">
                                     {info.bodyText && (
                                         <span dangerouslySetInnerHTML={{ __html: info.bodyText.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;') }} />
                                     )}
