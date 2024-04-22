@@ -4,7 +4,7 @@
 
 **Top 5 winner of X Developer Challenge 2024**
 
-A functional programming language with a pre-defined typing system, embeddable in X's posts to generate dynamic content. Designed to be user-friendly and intuitive for users without prior coding experience while being sophisticated enough to handle intricate logic.
+A scripting language with a pre-defined typing system, embeddable in X's posts to generate dynamic content. Designed to be user-friendly and intuitive for users without prior coding experience while being sophisticated enough to handle intricate logic.
 <p align="center">
   <img width="358" alt="image" src="https://github.com/joonyoo181/X-ecute/assets/59751754/99fd8899-38b6-4f2e-890b-a971a0f608af">
 </p>
